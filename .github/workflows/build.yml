@@ -1,0 +1,37 @@
+name: build-CI
+
+on:
+  create:
+    branches: 
+      - feature/**
+  push:
+    branches:
+    - ace
+    - main
+    - develop
+    - feature/**
+    - bugfix/**
+
+jobs:
+  build:
+
+    env:
+      CONFIG: 'Release'
+      SOLUTION: 'src/CatNip.Infrastructure.sln'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: dotnet restore
+      run: dotnet restore $SOLUTION
+
+    - name: dotnet build
+      run: dotnet build $SOLUTION --configuration $CONFIG --no-restore
