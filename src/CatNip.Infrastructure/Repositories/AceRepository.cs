@@ -4,10 +4,10 @@ using CatNip.Domain.Query.Filtering;
 using CatNip.Domain.Query.Pagination;
 using CatNip.Domain.Query.Sorting;
 using CatNip.Domain.Query.Sorting.Symbols;
-using CatNip.Domain.Repository;
+using CatNip.Domain.Repositories;
 using CatNip.Infrastructure.Data.Entities.Interfaces;
 
-namespace CatNip.Infrastructure.Repository;
+namespace CatNip.Infrastructure.Repositories;
 
 public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering>
     : CrudRepository<TDbContext, TEntity, TModel, TId>, IAceRepository<TModel, TId, TFiltering>

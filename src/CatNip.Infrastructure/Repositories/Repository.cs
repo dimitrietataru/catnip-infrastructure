@@ -1,8 +1,8 @@
-using CatNip.Domain.Repository;
+using CatNip.Domain.Repositories;
 using CatNip.Infrastructure.Data.Entities.Interfaces;
 using CatNip.Infrastructure.Exceptions;
 
-namespace CatNip.Infrastructure.Repository;
+namespace CatNip.Infrastructure.Repositories;
 
 public abstract class Repository<TDbContext, TEntity, TId> : Repository<TDbContext, TEntity>
     where TDbContext : DbContext

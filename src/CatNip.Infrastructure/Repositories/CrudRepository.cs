@@ -1,9 +1,9 @@
 using CatNip.Domain.Models.Interfaces;
-using CatNip.Domain.Repository;
+using CatNip.Domain.Repositories;
 using CatNip.Infrastructure.Data.Entities.Interfaces;
 using CatNip.Infrastructure.Exceptions;
 
-namespace CatNip.Infrastructure.Repository;
+namespace CatNip.Infrastructure.Repositories;
 
 public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
     : Repository<TDbContext, TEntity, TId>, ICrudRepository<TModel, TId>
