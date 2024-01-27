@@ -26,12 +26,11 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
     {
         var baseQuery = GetQueriable();
 
-        var filteringQuery = ComposeFilteringQuery(baseQuery, request.Filter);
+        var filteringQuery = BuildFilteringQuery(baseQuery, request.Filter);
         int count = await filteringQuery.AsNoTracking().CountAsync(cancellation);
 
-        var sortQuery = ComposeSortingQuery(filteringQuery, request);
-        var paginationQuery = ApplyPagination(sortQuery, request);
-
+        var sortQuery = BuildSortingQuery(filteringQuery, request);
+        var paginationQuery = BuildPaginationQuery(sortQuery, request);
         var items = await paginationQuery
             .AsNoTracking()
             .ProjectTo<TModel>(Mapper.ConfigurationProvider)
@@ -43,36 +42,33 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
     public async Task<int> CountAsync(QueryRequest<TFiltering> request, CancellationToken cancellation = default)
     {
         var query = GetQueriable();
-        query = ComposeFilteringQuery(query, request.Filter);
+        query = BuildFilteringQuery(query, request.Filter);
 
         return await query.AsNoTracking().CountAsync(cancellation);
     }
 
-    protected virtual IQueryable<TEntity> ApplyPagination(IQueryable<TEntity> query, IPaginationRequest request)
+    protected virtual IQueryable<TEntity> BuildPaginationQuery(IQueryable<TEntity> query, IPaginationRequest paginationRequest)
     {
-        int page = request.Page ?? 1;
-        int size = request.Size ?? int.MaxValue;
+        int page = paginationRequest.Page ?? 1;
+        int size = paginationRequest.Size ?? int.MaxValue;
 
         return query.Skip((page - 1) * size).Take(size);
     }
 
-    protected virtual IQueryable<TEntity> ComposeSortingQuery(IQueryable<TEntity> query, ISortingRequest request)
+    protected virtual IQueryable<TEntity> BuildSortingQuery(IQueryable<TEntity> query, ISortingRequest sortingRequest)
     {
-        string sortBy = request.SortBy ?? "id";
-        var sortDirection = request.SortDirection ?? SortDirection.Ascending;
+        string sortBy = sortingRequest.SortBy ?? "id";
+        var sortDirection = sortingRequest.SortDirection ?? SortDirection.Ascending;
 
-        if (string.Equals(sortBy, "id", StringComparison.OrdinalIgnoreCase))
+        query = (sortBy, sortDirection) switch
         {
-            return sortDirection switch
-            {
-                SortDirection.Ascending => query.OrderBy(e => e.Id),
-                SortDirection.Descending => query.OrderByDescending(e => e.Id),
-                _ => query
-            };
-        }
+            ("id", SortDirection.Ascending) => query.OrderBy(_ => _.Id),
+            ("id", SortDirection.Descending) => query.OrderByDescending(_ => _.Id),
+            _ => query
+        };
 
         return query;
     }
 
-    protected abstract IQueryable<TEntity> ComposeFilteringQuery(IQueryable<TEntity> query, TFiltering queryParams);
+    protected abstract IQueryable<TEntity> BuildFilteringQuery(IQueryable<TEntity> query, TFiltering request);
 }
