@@ -42,6 +42,7 @@ public abstract class EntityConfiguration<TEntity> : IEntityTypeConfiguration<TE
     public virtual void Configure(EntityTypeBuilder<TEntity> builder)
     {
         ConfigureTable(builder);
+        ConfigureRelationships(builder);
         ConfigureSeed(builder);
     }
 
@@ -51,6 +52,10 @@ public abstract class EntityConfiguration<TEntity> : IEntityTypeConfiguration<TE
     }
 
     protected virtual void ConfigureTable(TableBuilder<TEntity> tableBuilder)
+    {
+    }
+
+    protected virtual void ConfigureRelationships(EntityTypeBuilder<TEntity> builder)
     {
     }
 
