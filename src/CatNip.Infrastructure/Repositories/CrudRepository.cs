@@ -41,7 +41,10 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
 
     public virtual async Task<TModel> GetByIdAsync(TId id, CancellationToken cancellation = default)
     {
-        var result = await GetQueriable()
+        var baseQuery = GetQueriable();
+        var includeQuery = BuildIncludeQuery(baseQuery);
+
+        var result = await includeQuery
             .AsNoTracking()
             .ProjectTo<TModel>(Mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(e => e.Id.Equals(id), cancellation);
@@ -82,4 +85,6 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
 
         await DeleteAsync(entity, cancellation).ConfigureAwait(false);
     }
+
+    protected abstract IQueryable<TEntity> BuildIncludeQuery(IQueryable<TEntity> query);
 }

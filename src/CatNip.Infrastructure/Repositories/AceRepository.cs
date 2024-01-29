@@ -41,10 +41,10 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
 
     public async Task<int> CountAsync(QueryRequest<TFiltering> request, CancellationToken cancellation = default)
     {
-        var query = GetQueriable();
-        query = BuildFilteringQuery(query, request.Filter);
+        var baseQuery = GetQueriable();
+        var filteringQuery = BuildFilteringQuery(baseQuery, request.Filter);
 
-        return await query.AsNoTracking().CountAsync(cancellation);
+        return await filteringQuery.AsNoTracking().CountAsync(cancellation);
     }
 
     protected virtual IQueryable<TEntity> BuildPaginationQuery(IQueryable<TEntity> query, IPaginationRequest paginationRequest)
