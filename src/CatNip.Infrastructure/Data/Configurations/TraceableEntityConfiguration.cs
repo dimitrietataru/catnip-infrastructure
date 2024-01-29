@@ -9,8 +9,9 @@ public abstract class TraceableEntityConfiguration<TEntity, TId> : TraceableEnti
 }
 
 public abstract class TraceableEntityConfiguration<TEntity, TEntityId, TTraceId> : EntityConfiguration<TEntity, TEntityId>
-    where TEntity : class, ITraceableEntity<TEntityId>
+    where TEntity : class, ITraceableEntity<TEntityId, TTraceId>
     where TEntityId : IEquatable<TEntityId>
+    where TTraceId : IEquatable<TTraceId>
 {
     public override void Configure(EntityTypeBuilder<TEntity> builder)
     {
