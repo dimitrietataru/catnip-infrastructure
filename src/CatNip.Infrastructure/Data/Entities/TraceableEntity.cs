@@ -2,7 +2,7 @@ using CatNip.Infrastructure.Data.Entities.Interfaces;
 
 namespace CatNip.Infrastructure.Data.Entities;
 
-public abstract class TraceableEntity<TId> : TraceableEntity<TId, TId>
+public abstract class TraceableEntity<TId> : TraceableEntity<TId, TId>, ITraceableEntity<TId>
     where TId : IEquatable<TId>
 {
 }
