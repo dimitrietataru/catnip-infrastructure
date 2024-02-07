@@ -14,7 +14,7 @@ indent_size = 4
 indent_style = space
 tab_width = 4
 
-[*.cs]
+[*.{cs,vb}]
 indent_size = 4
 indent_style = space
 tab_width = 4
@@ -26,7 +26,7 @@ tab_width = 2
 
 
 ## CSharp ##
-[*.cs]
+[*.{cs,vb}]
 
 # Code Style | General | 'this.' preferences
 dotnet_style_qualification_for_event = false:warning
@@ -40,16 +40,17 @@ dotnet_style_predefined_type_for_member_access = true:warning
 
 # Code Style | General | 'var' preferences
 csharp_style_var_for_built_in_types = false:suggestion
-csharp_style_var_elsewhere = true:suggestion
 csharp_style_var_when_type_is_apparent = true:warning
+csharp_style_var_elsewhere = true:suggestion
 
 # Code Style | General | Code block preferences
 csharp_prefer_braces = true:warning
-csharp_style_namespace_declarations = file_scoped:suggestion
-csharp_prefer_simple_using_statement = true:suggestion
 dotnet_style_prefer_auto_properties = true:silent
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_namespace_declarations = file_scoped:suggestion
 csharp_style_prefer_method_group_conversion = true:suggestion
 csharp_style_prefer_top_level_statements = true:suggestion
+csharp_style_prefer_primary_constructors = false:warning
 
 # Code Style | General | Parentheses preferences
 dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:suggestion
@@ -60,26 +61,31 @@ dotnet_style_parentheses_in_other_operators = never_if_unnecessary:warning
 # Code Style | General | Expression preferences
 dotnet_style_object_initializer = true:suggestion
 dotnet_style_collection_initializer = true:suggestion
-dotnet_style_prefer_simplified_boolean_expressions = true:warning
-csharp_style_prefer_switch_expression = true:suggestion
-dotnet_style_prefer_conditional_expression_over_assignment = true:silent
-dotnet_style_prefer_conditional_expression_over_return = false:silent
 dotnet_style_explicit_tuple_names = true:suggestion
 csharp_prefer_simple_default_expression = true:warning
 dotnet_style_prefer_inferred_tuple_names = false:suggestion
 dotnet_style_prefer_inferred_anonymous_type_member_names = false:suggestion
-csharp_style_pattern_local_over_anonymous_function = true:warning
+csharp_style_prefer_local_over_anonymous_function = true:warning
+dotnet_style_prefer_conditional_expression_over_assignment = true:silent
+dotnet_style_prefer_conditional_expression_over_return = false:silent
 dotnet_style_prefer_compound_assignment = true:warning
-csharp_style_implicit_object_creation_when_type_is_apparent = true:warning
 csharp_style_prefer_index_operator = true:suggestion
 csharp_style_prefer_range_operator = true:suggestion
-csharp_style_prefer_tuple_swap = true:suggestion
-csharp_style_unused_value_assignment_preference = discard_variable:silent
 csharp_style_unused_value_expression_statement_preference = discard_variable:silent
+csharp_style_unused_value_assignment_preference = discard_variable:silent
+csharp_style_prefer_switch_expression = true:suggestion
+dotnet_style_prefer_simplified_interpolation = true:warning
+dotnet_style_prefer_simplified_boolean_expressions = true:warning
+csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion
+dotnet_style_namespace_match_folder = true:suggestion
+csharp_style_prefer_tuple_swap = true:suggestion
+csharp_style_prefer_utf8_string_literals = true:suggestion
+dotnet_style_prefer_collection_expression = true:suggestion
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
 
 # Code Style | General | Expression-bodied members
-csharp_style_expression_bodied_methods = false:silent
 csharp_style_expression_bodied_constructors = false:silent
+csharp_style_expression_bodied_methods = false:silent
 csharp_style_expression_bodied_operators = false:silent
 csharp_style_expression_bodied_properties = true:suggestion
 csharp_style_expression_bodied_indexers = true:suggestion
@@ -89,9 +95,10 @@ csharp_style_expression_bodied_local_functions = false:suggestion
 
 # Code Style | General | Pattern matching preferences
 csharp_style_prefer_pattern_matching = true:suggestion
-csharp_style_pattern_matching_over_is_with_cast_check = true:warning
 csharp_style_pattern_matching_over_as_with_null_check = true:warning
+csharp_style_pattern_matching_over_is_with_cast_check = true:warning
 csharp_style_prefer_not_pattern = true:warning
+csharp_style_prefer_extended_property_pattern = true:warning
 
 # Code Style | General | Variable preferences
 csharp_style_inlined_variable_declaration = true:warning
@@ -99,19 +106,21 @@ csharp_style_deconstructed_variable_declaration = true:suggestion
 
 # Code Style | General | 'null' checking
 csharp_style_throw_expression = true:suggestion
-csharp_style_conditional_delegate_call = true:suggestion
 dotnet_style_coalesce_expression = true:warning
 dotnet_style_null_propagation = true:warning
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
 csharp_style_prefer_null_check_over_type_check = true:suggestion
+csharp_style_conditional_delegate_call = true:suggestion
 
 # Code Style | General | 'using' preferences
 csharp_using_directive_placement = outside_namespace:error
 
 # Code Style | General | Modifier preferences
+dotnet_style_require_accessibility_modifiers = true:warning
 dotnet_style_readonly_field = true:warning
-csharp_style_prefer_readonly_struct = true:suggestion
 csharp_prefer_static_local_function = true:warning
+csharp_style_prefer_readonly_struct = true:suggestion
+csharp_style_prefer_readonly_struct_member = true:suggestion
 
 # Code Style | General | Parameter preferences
 dotnet_code_quality_unused_parameters = non_public:warning
@@ -553,7 +562,11 @@ dotnet_diagnostic.CA1505.severity = warning
 dotnet_diagnostic.CA1506.severity = warning
 dotnet_diagnostic.CA1507.severity = warning
 dotnet_diagnostic.CA1508.severity = warning
-dotnet_diagnostic.CA1509.severity = error 
+dotnet_diagnostic.CA1509.severity = error
+dotnet_diagnostic.CA1510.severity = warning
+dotnet_diagnostic.CA1511.severity = warning
+dotnet_diagnostic.CA1512.severity = warning
+dotnet_diagnostic.CA1513.severity = warning
 
 # Microsoft.CodeAnalysis.NetAnalyzers | Naming
 dotnet_diagnostic.CA1700.severity = suggestion
@@ -619,11 +632,26 @@ dotnet_diagnostic.CA1852.severity = warning
 dotnet_diagnostic.CA1853.severity = warning
 dotnet_diagnostic.CA1854.severity = suggestion
 dotnet_diagnostic.CA1855.severity = suggestion
+dotnet_diagnostic.CA1856.severity = error
+dotnet_diagnostic.CA1857.severity = warning
+dotnet_diagnostic.CA1858.severity = warning
+dotnet_diagnostic.CA1859.severity = suggestion
+dotnet_diagnostic.CA1860.severity = warning
+dotnet_diagnostic.CA1861.severity = warning
+dotnet_diagnostic.CA1862.severity = warning
+dotnet_diagnostic.CA1863.severity = suggestion
+dotnet_diagnostic.CA1864.severity = warning
+dotnet_diagnostic.CA1865.severity = warning
+dotnet_diagnostic.CA1866.severity = warning
+dotnet_diagnostic.CA1867.severity = suggestion
+dotnet_diagnostic.CA1868.severity = warning
+dotnet_diagnostic.CA1869.severity = warning
+dotnet_diagnostic.CA1870.severity = warning
 
 # Microsoft.CodeAnalysis.NetAnalyzers | Reliability
 dotnet_diagnostic.CA2000.severity = suggestion
 dotnet_diagnostic.CA2002.severity = error
-dotnet_diagnostic.CA2007.severity = suggestion
+dotnet_diagnostic.CA2007.severity = none
 dotnet_diagnostic.CA2008.severity = suggestion
 dotnet_diagnostic.CA2009.severity = warning
 dotnet_diagnostic.CA2011.severity = error
@@ -636,6 +664,7 @@ dotnet_diagnostic.CA2017.severity = warning
 dotnet_diagnostic.CA2018.severity = warning
 dotnet_diagnostic.CA2019.severity = suggestion
 dotnet_diagnostic.CA2020.severity = suggestion
+dotnet_diagnostic.CA2021.severity = warning
 
 # Microsoft.CodeAnalysis.NetAnalyzers | Security
 dotnet_diagnostic.CA2100.severity = warning
@@ -777,6 +806,10 @@ dotnet_diagnostic.CA2257.severity = warning
 dotnet_diagnostic.CA2258.severity = warning
 dotnet_diagnostic.CA2259.severity = warning
 dotnet_diagnostic.CA2260.severity = warning
+dotnet_diagnostic.CA2261.severity = warning
+
+# Code Style | Formatting
+dotnet_diagnostic.IDE0055.severity = warning
 
 # Exceptions
 [*.cs]
