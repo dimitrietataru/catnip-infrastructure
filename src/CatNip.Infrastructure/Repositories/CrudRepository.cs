@@ -6,19 +6,18 @@ using CatNip.Infrastructure.Exceptions;
 namespace CatNip.Infrastructure.Repositories;
 
 public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
-    : Repository<TDbContext, TEntity, TId>, ICrudRepository<TModel, TId>
+    : UnitOfWork<TDbContext, TEntity, TModel, TId>, ICrudRepository<TModel, TId>
     where TDbContext : DbContext
     where TEntity : class, IEntity<TId>
     where TModel : IModel<TId>
     where TId : IEquatable<TId>
 {
     protected CrudRepository(TDbContext dbContext, IMapper mapper)
-        : base(dbContext)
+        : base(dbContext, mapper)
     {
-        Mapper = mapper;
     }
 
-    protected virtual IMapper Mapper { get; init; }
+    public IUnitOfWork<TModel> UnitOfWork => this;
 
     public virtual async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellation = default)
     {
@@ -64,26 +63,39 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
 
     public virtual async Task<TModel> CreateAsync(TModel model, CancellationToken cancellation = default)
     {
-        var entity = Mapper.Map<TEntity>(model);
+        UnitOfWork.Update(model);
+        await UnitOfWork.CommitAsync(cancellation);
 
-        await CreateAsync(model, cancellation).ConfigureAwait(false);
-
-        return Mapper.Map<TModel>(entity);
+        return model;
     }
 
     public virtual async Task UpdateAsync(TModel model, CancellationToken cancellation = default)
     {
-        var entity = await FindAsync(model.Id);
+        UnitOfWork.Update(model);
+        await UnitOfWork.CommitAsync(cancellation);
+    }
+
+    public virtual async Task UpdateAsync(TId id, TModel model, CancellationToken cancellation = default)
+    {
+        var entity = await FindAsync(id);
         Mapper.Map(model, entity);
 
-        await UpdateAsync(entity, cancellation).ConfigureAwait(false);
+        Update(entity);
+        await UnitOfWork.CommitAsync(cancellation);
     }
 
     public virtual async Task DeleteAsync(TId id, CancellationToken cancellation = default)
     {
         var entity = await FindAsync(id);
 
-        await DeleteAsync(entity, cancellation).ConfigureAwait(false);
+        Delete(entity);
+        await UnitOfWork.CommitAsync(cancellation);
+    }
+
+    public virtual async Task DeleteAsync(TModel model, CancellationToken cancellation = default)
+    {
+        UnitOfWork.Delete(model);
+        await UnitOfWork.CommitAsync(cancellation);
     }
 
     protected abstract IQueryable<TEntity> BuildIncludeQuery(IQueryable<TEntity> query);

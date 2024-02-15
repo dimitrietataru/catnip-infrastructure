@@ -9,8 +9,8 @@ using CatNip.Infrastructure.Data.Entities.Interfaces;
 
 namespace CatNip.Infrastructure.Repositories;
 
-public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering>
-    : CrudRepository<TDbContext, TEntity, TModel, TId>, IAceRepository<TModel, TId, TFiltering>
+public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering> :
+    CrudRepository<TDbContext, TEntity, TModel, TId>, IAceRepository<TModel, TId, TFiltering>
     where TDbContext : DbContext
     where TEntity : class, IEntity<TId>
     where TModel : IModel<TId>
@@ -22,7 +22,7 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
     {
     }
 
-    public async Task<QueryResponse<TModel>> GetAsync(QueryRequest<TFiltering> request, CancellationToken cancellation = default)
+    public virtual async Task<QueryResponse<TModel>> GetAsync(QueryRequest<TFiltering> request, CancellationToken cancellation = default)
     {
         var baseQuery = GetQueriable();
 
@@ -39,12 +39,20 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return new QueryResponse<TModel>(request.Page, request.Size, count, items);
     }
 
-    public async Task<int> CountAsync(QueryRequest<TFiltering> request, CancellationToken cancellation = default)
+    public virtual async Task<int> CountAsync(QueryRequest<TFiltering> request, CancellationToken cancellation = default)
     {
         var baseQuery = GetQueriable();
         var filteringQuery = BuildFilteringQuery(baseQuery, request.Filter);
 
         return await filteringQuery.AsNoTracking().CountAsync(cancellation);
+    }
+
+    public virtual async Task<bool> ExistsAsync(TFiltering filter, CancellationToken cancellation = default)
+    {
+        var baseQuery = GetQueriable();
+        var filteringQuery = BuildFilteringQuery(baseQuery, filter);
+
+        return await filteringQuery.AsNoTracking().AnyAsync(cancellation);
     }
 
     protected virtual IQueryable<TEntity> BuildPaginationQuery(IQueryable<TEntity> query, IPaginationRequest paginationRequest)
