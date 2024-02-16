@@ -39,12 +39,14 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return new QueryResponse<TModel>(request.Page, request.Size, count, items);
     }
 
-    public virtual async Task<int> CountAsync(QueryRequest<TFiltering> request, CancellationToken cancellation = default)
+    public virtual async Task<int> CountAsync(TFiltering filter, CancellationToken cancellation = default)
     {
         var baseQuery = GetQueriable();
-        var filteringQuery = BuildFilteringQuery(baseQuery, request.Filter);
+        var filteringQuery = BuildFilteringQuery(baseQuery, filter);
 
-        return await filteringQuery.AsNoTracking().CountAsync(cancellation);
+        int count = await filteringQuery.AsNoTracking().CountAsync(cancellation);
+
+        return count;
     }
 
     public virtual async Task<bool> ExistsAsync(TFiltering filter, CancellationToken cancellation = default)
@@ -52,7 +54,9 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         var baseQuery = GetQueriable();
         var filteringQuery = BuildFilteringQuery(baseQuery, filter);
 
-        return await filteringQuery.AsNoTracking().AnyAsync(cancellation);
+        bool exists = await filteringQuery.AsNoTracking().AnyAsync(cancellation);
+
+        return exists;
     }
 
     protected virtual IQueryable<TEntity> BuildPaginationQuery(IQueryable<TEntity> query, IPaginationRequest paginationRequest)

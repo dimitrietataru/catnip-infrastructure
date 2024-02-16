@@ -1,34 +1,7 @@
 using CatNip.Domain.Models.Interfaces;
 using CatNip.Domain.Repositories;
-using CatNip.Infrastructure.Data.Entities.Interfaces;
-using CatNip.Infrastructure.Exceptions;
 
 namespace CatNip.Infrastructure.Repositories;
-
-public abstract class UnitOfWork<TDbContext, TEntity, TModel, TId> : UnitOfWork<TDbContext, TEntity, TModel>
-    where TDbContext : DbContext
-    where TModel : IModel<TId>
-    where TEntity : class, IEntity<TId>
-    where TId : IEquatable<TId>
-{
-    protected UnitOfWork(TDbContext dbContext, IMapper mapper)
-        : base(dbContext, mapper)
-    {
-    }
-
-    protected virtual IQueryable<TEntity> GetQueriable()
-    {
-        return DbContext.Set<TEntity>();
-    }
-
-    private protected virtual async Task<TEntity> FindAsync(TId id)
-    {
-        var entity = await DbContext.Set<TEntity>().FindAsync(id);
-        _ = entity ?? throw new EntityNotFoundException<TEntity, TId>(id);
-
-        return entity;
-    }
-}
 
 public abstract class UnitOfWork<TDbContext, TEntity, TModel> : UnitOfWork<TDbContext, TEntity>, IUnitOfWork<TModel>
     where TDbContext : DbContext
@@ -47,8 +20,6 @@ public abstract class UnitOfWork<TDbContext, TEntity, TModel> : UnitOfWork<TDbCo
     {
         var entity = Mapper.Map<TEntity>(model);
         Create(entity);
-
-        Mapper.Map(entity, model);
     }
 
     public virtual void Update(TModel model)
@@ -80,17 +51,40 @@ public abstract class UnitOfWork<TDbContext, TEntity> : IUnitOfWork
         await DbContext.SaveChangesAsync(cancellation);
     }
 
-    private protected virtual void Create(TEntity entity)
+    protected virtual IQueryable<TEntity> GetQueriable()
+    {
+        return DbContext.Set<TEntity>();
+    }
+
+    private protected async Task CreateAsync(TEntity entity, CancellationToken cancellation = default)
+    {
+        Create(entity);
+        await CommitAsync(cancellation);
+    }
+
+    private protected void Create(TEntity entity)
     {
         DbContext.Set<TEntity>().Add(entity);
     }
 
-    private protected virtual void Update(TEntity entity)
+    private protected async Task UpdateAsync(TEntity entity, CancellationToken cancellation = default)
+    {
+        Update(entity);
+        await CommitAsync(cancellation);
+    }
+
+    private protected void Update(TEntity entity)
     {
         DbContext.Set<TEntity>().Update(entity);
     }
 
-    private protected virtual void Delete(TEntity entity)
+    private protected async Task DeleteAsync(TEntity entity, CancellationToken cancellation = default)
+    {
+        Delete(entity);
+        await CommitAsync(cancellation);
+    }
+
+    private protected void Delete(TEntity entity)
     {
         DbContext.Set<TEntity>().Remove(entity);
     }

@@ -6,7 +6,7 @@ using CatNip.Infrastructure.Exceptions;
 namespace CatNip.Infrastructure.Repositories;
 
 public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
-    : UnitOfWork<TDbContext, TEntity, TModel, TId>, ICrudRepository<TModel, TId>
+    : UnitOfWork<TDbContext, TEntity, TModel>, ICrudRepository<TModel, TId>
     where TDbContext : DbContext
     where TEntity : class, IEntity<TId>
     where TModel : IModel<TId>
@@ -21,7 +21,10 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
 
     public virtual async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellation = default)
     {
-        var result = await GetQueriable()
+        var baseQuery = GetQueriable();
+        var sortQuery = BuildDefaultSortQuery(baseQuery);
+
+        var result = await sortQuery
             .AsNoTracking()
             .ProjectTo<TModel>(Mapper.ConfigurationProvider)
             .ToListAsync(cancellation);
@@ -31,9 +34,8 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
 
     public virtual async Task<int> CountAsync(CancellationToken cancellation = default)
     {
-        int count = await GetQueriable()
-            .AsNoTracking()
-            .CountAsync(cancellation);
+        var baseQuery = GetQueriable();
+        int count = await baseQuery.AsNoTracking().CountAsync(cancellation);
 
         return count;
     }
@@ -45,8 +47,9 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
 
         var result = await includeQuery
             .AsNoTracking()
+            .Where(e => e.Id.Equals(id))
             .ProjectTo<TModel>(Mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(e => e.Id.Equals(id), cancellation);
+            .FirstOrDefaultAsync(cancellation);
         _ = result ?? throw new EntityNotFoundException<TEntity, TId>(id);
 
         return result;
@@ -54,25 +57,27 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
 
     public virtual async Task<bool> ExistsAsync(TId id, CancellationToken cancellation = default)
     {
-        bool exists = await GetQueriable()
-            .AsNoTracking()
-            .AnyAsync(e => e.Id.Equals(id), cancellation);
+        var baseQuery = GetQueriable();
+        bool exists = await baseQuery.AsNoTracking().AnyAsync(e => e.Id.Equals(id), cancellation);
 
         return exists;
     }
 
     public virtual async Task<TModel> CreateAsync(TModel model, CancellationToken cancellation = default)
     {
-        UnitOfWork.Update(model);
-        await UnitOfWork.CommitAsync(cancellation);
+        var entity = Mapper.Map<TEntity>(model);
 
-        return model;
+        Create(entity);
+        await CommitAsync(cancellation);
+
+        return Mapper.Map(entity, model);
     }
 
     public virtual async Task UpdateAsync(TModel model, CancellationToken cancellation = default)
     {
-        UnitOfWork.Update(model);
-        await UnitOfWork.CommitAsync(cancellation);
+        var entity = Mapper.Map<TEntity>(model);
+
+        await UpdateAsync(entity, cancellation);
     }
 
     public virtual async Task UpdateAsync(TId id, TModel model, CancellationToken cancellation = default)
@@ -80,23 +85,35 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
         var entity = await FindAsync(id);
         Mapper.Map(model, entity);
 
-        Update(entity);
-        await UnitOfWork.CommitAsync(cancellation);
+        await UpdateAsync(entity, cancellation);
+    }
+
+    public virtual async Task DeleteAsync(TModel model, CancellationToken cancellation = default)
+    {
+        var entity = Mapper.Map<TEntity>(model);
+
+        await DeleteAsync(entity, cancellation);
     }
 
     public virtual async Task DeleteAsync(TId id, CancellationToken cancellation = default)
     {
         var entity = await FindAsync(id);
 
-        Delete(entity);
-        await UnitOfWork.CommitAsync(cancellation);
+        await DeleteAsync(entity, cancellation);
     }
 
-    public virtual async Task DeleteAsync(TModel model, CancellationToken cancellation = default)
+    protected virtual IQueryable<TEntity> BuildDefaultSortQuery(IQueryable<TEntity> query)
     {
-        UnitOfWork.Delete(model);
-        await UnitOfWork.CommitAsync(cancellation);
+        return query.OrderBy(e => e.Id);
     }
 
     protected abstract IQueryable<TEntity> BuildIncludeQuery(IQueryable<TEntity> query);
+
+    private protected virtual async Task<TEntity> FindAsync(TId id)
+    {
+        var entity = await DbContext.Set<TEntity>().FindAsync(id);
+        _ = entity ?? throw new EntityNotFoundException<TEntity, TId>(id);
+
+        return entity;
+    }
 }
