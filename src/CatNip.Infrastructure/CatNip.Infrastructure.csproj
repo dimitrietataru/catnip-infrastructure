@@ -8,7 +8,7 @@
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>CatNip.Infrastructure</PackageId>
-    <Version>0.3.0-alpha</Version>
+    <Version>0.9.0-beta</Version>
     <Authors>Dimitrie Tataru</Authors>
     <Company>A C E</Company>
     <Description>Clean Architecture Template - Infrastructure Abstractions</Description>
