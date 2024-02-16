@@ -22,7 +22,7 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
     public virtual async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellation = default)
     {
         var baseQuery = GetQueriable();
-        var sortQuery = BuildDefaultSortQuery(baseQuery);
+        var sortQuery = BuildDefaultSortingQuery(baseQuery);
 
         var result = await sortQuery
             .AsNoTracking()
@@ -102,7 +102,7 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
         await DeleteAsync(entity, cancellation);
     }
 
-    protected virtual IQueryable<TEntity> BuildDefaultSortQuery(IQueryable<TEntity> query)
+    protected virtual IQueryable<TEntity> BuildDefaultSortingQuery(IQueryable<TEntity> query)
     {
         return query.OrderBy(e => e.Id);
     }

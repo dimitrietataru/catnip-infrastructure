@@ -61,22 +61,32 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
 
     protected virtual IQueryable<TEntity> BuildPaginationQuery(IQueryable<TEntity> query, IPaginationRequest paginationRequest)
     {
-        int page = paginationRequest.Page ?? 1;
-        int size = paginationRequest.Size ?? int.MaxValue;
+        if (!paginationRequest.HasPaginationData())
+        {
+            return query;
+        }
+
+        int page = paginationRequest.Page!.Value;
+        int size = paginationRequest.Size!.Value;
 
         return query.Skip((page - 1) * size).Take(size);
     }
 
     protected virtual IQueryable<TEntity> BuildSortingQuery(IQueryable<TEntity> query, ISortingRequest sortingRequest)
     {
-        string sortBy = sortingRequest.SortBy ?? "id";
-        var sortDirection = sortingRequest.SortDirection ?? SortDirection.Ascending;
+        if (!sortingRequest.HasSortingData())
+        {
+            return BuildDefaultSortingQuery(query);
+        }
+
+        string sortBy = sortingRequest.SortBy!;
+        var sortDirection = sortingRequest.SortDirection!.Value;
 
         query = (sortBy, sortDirection) switch
         {
             ("id", SortDirection.Ascending) => query.OrderBy(_ => _.Id),
             ("id", SortDirection.Descending) => query.OrderByDescending(_ => _.Id),
-            _ => query
+            _ => BuildDefaultSortingQuery(query)
         };
 
         return query;
