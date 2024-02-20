@@ -73,26 +73,12 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
         return Mapper.Map(entity, model);
     }
 
-    public virtual async Task UpdateAsync(TModel model, CancellationToken cancellation = default)
-    {
-        var entity = Mapper.Map<TEntity>(model);
-
-        await UpdateAsync(entity, cancellation);
-    }
-
     public virtual async Task UpdateAsync(TId id, TModel model, CancellationToken cancellation = default)
     {
         var entity = await FindAsync(id);
         Mapper.Map(model, entity);
 
         await UpdateAsync(entity, cancellation);
-    }
-
-    public virtual async Task DeleteAsync(TModel model, CancellationToken cancellation = default)
-    {
-        var entity = Mapper.Map<TEntity>(model);
-
-        await DeleteAsync(entity, cancellation);
     }
 
     public virtual async Task DeleteAsync(TId id, CancellationToken cancellation = default)
@@ -116,4 +102,65 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
 
         return entity;
     }
+}
+
+public abstract class CrudRepository<TDbContext, TEntity, TModel>
+    : UnitOfWork<TDbContext, TEntity, TModel>, ICrudRepository<TModel>
+    where TDbContext : DbContext
+    where TEntity : class, IEntity
+    where TModel : IModel
+{
+    private readonly IMapper mapper;
+
+    protected CrudRepository(TDbContext dbContext, IMapper mapper)
+        : base(dbContext, mapper)
+    {
+        this.mapper = mapper;
+    }
+
+    public IUnitOfWork<TModel> UnitOfWork => this;
+
+    public virtual async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellation = default)
+    {
+        var baseQuery = GetQueriable();
+        var sortQuery = BuildDefaultSortingQuery(baseQuery);
+
+        var result = await sortQuery
+            .AsNoTracking()
+            .ProjectTo<TModel>(mapper.ConfigurationProvider)
+            .ToListAsync(cancellation);
+
+        return result;
+    }
+
+    public virtual async Task<int> CountAsync(CancellationToken cancellation = default)
+    {
+        var baseQuery = GetQueriable();
+        int count = await baseQuery.AsNoTracking().CountAsync(cancellation);
+
+        return count;
+    }
+
+    public virtual async Task CreateAsync(TModel model, CancellationToken cancellation = default)
+    {
+        var entity = Mapper.Map<TEntity>(model);
+
+        await CreateAsync(entity, cancellation);
+    }
+
+    public virtual async Task UpdateAsync(TModel model, CancellationToken cancellation = default)
+    {
+        var entity = Mapper.Map<TEntity>(model);
+
+        await UpdateAsync(entity, cancellation);
+    }
+
+    public virtual async Task DeleteAsync(TModel model, CancellationToken cancellation = default)
+    {
+        var entity = Mapper.Map<TEntity>(model);
+
+        await DeleteAsync(entity, cancellation);
+    }
+
+    protected abstract IQueryable<TEntity> BuildDefaultSortingQuery(IQueryable<TEntity> query);
 }
