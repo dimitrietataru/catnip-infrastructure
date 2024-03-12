@@ -3,7 +3,7 @@ using CatNip.Infrastructure.Data.Entities.Interfaces;
 
 namespace CatNip.Infrastructure.Exceptions;
 
-public class EntityNotFoundException<TEntity, TKey> : NotFoundException
+public class EntityNotFoundException<TEntity, TKey> : DataNotFoundException
     where TEntity : IEntity<TKey>
     where TKey : IEquatable<TKey>
 {
