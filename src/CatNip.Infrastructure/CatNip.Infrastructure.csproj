@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
 
     <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
     <ImplicitUsings>disable</ImplicitUsings>
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
