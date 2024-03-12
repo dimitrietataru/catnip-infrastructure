@@ -64,5 +64,5 @@ public abstract class EntityConfiguration<TEntity> : IEntityTypeConfiguration<TE
         builder.HasData(Seed);
     }
 
-    protected virtual IEnumerable<TEntity> Seed => Enumerable.Empty<TEntity>();
+    protected virtual IEnumerable<TEntity> Seed => [];
 }

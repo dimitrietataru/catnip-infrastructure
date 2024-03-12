@@ -22,7 +22,8 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
     {
     }
 
-    public virtual async Task<QueryResponse<TModel>> GetAsync(QueryRequest<TFiltering> request, CancellationToken cancellation = default)
+    public virtual async Task<QueryResponse<TModel>> GetAsync(
+        QueryRequest<TFiltering> request, CancellationToken cancellation = default)
     {
         var baseQuery = GetQueriable();
 
@@ -39,7 +40,8 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return new QueryResponse<TModel>(request.Page, request.Size, count, items);
     }
 
-    public virtual async Task<int> CountAsync(TFiltering filter, CancellationToken cancellation = default)
+    public virtual async Task<int> CountAsync(
+        TFiltering filter, CancellationToken cancellation = default)
     {
         var baseQuery = GetQueriable();
         var filteringQuery = BuildFilteringQuery(baseQuery, filter);
@@ -49,7 +51,8 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return count;
     }
 
-    public virtual async Task<bool> ExistsAsync(TFiltering filter, CancellationToken cancellation = default)
+    public virtual async Task<bool> ExistsAsync(
+        TFiltering filter, CancellationToken cancellation = default)
     {
         var baseQuery = GetQueriable();
         var filteringQuery = BuildFilteringQuery(baseQuery, filter);
@@ -59,7 +62,8 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return exists;
     }
 
-    protected virtual IQueryable<TEntity> BuildPaginationQuery(IQueryable<TEntity> query, IPaginationRequest paginationRequest)
+    protected virtual IQueryable<TEntity> BuildPaginationQuery(
+        IQueryable<TEntity> query, IPaginationRequest paginationRequest)
     {
         if (!paginationRequest.HasPaginationData())
         {
@@ -72,7 +76,8 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return query.Skip((page - 1) * size).Take(size);
     }
 
-    protected virtual IQueryable<TEntity> BuildSortingQuery(IQueryable<TEntity> query, ISortingRequest sortingRequest)
+    protected virtual IQueryable<TEntity> BuildSortingQuery(
+        IQueryable<TEntity> query, ISortingRequest sortingRequest)
     {
         if (!sortingRequest.HasSortingData())
         {
@@ -92,5 +97,6 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return query;
     }
 
-    protected abstract IQueryable<TEntity> BuildFilteringQuery(IQueryable<TEntity> query, TFiltering request);
+    protected abstract IQueryable<TEntity> BuildFilteringQuery(
+        IQueryable<TEntity> query, TFiltering request);
 }
