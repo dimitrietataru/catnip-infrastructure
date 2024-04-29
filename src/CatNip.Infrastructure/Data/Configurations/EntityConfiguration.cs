@@ -6,19 +6,52 @@ public abstract class EntityConfiguration<TEntity, TId> : EntityConfiguration<TE
     where TEntity : class, IEntity<TId>
     where TId : IEquatable<TId>
 {
-    public override void Configure(EntityTypeBuilder<TEntity> builder)
+    protected override void ConfigureKeys(EntityTypeBuilder<TEntity> builder)
     {
-        base.Configure(builder);
+        builder.HasKey(e => e.Id);
+    }
+}
+
+public abstract class EntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity>
+    where TEntity : class
+{
+    protected abstract string TableName { get; }
+    protected abstract string? TableSchema { get; }
+    protected virtual IEnumerable<TEntity> Seed { get; } = [];
+
+    public virtual void Configure(EntityTypeBuilder<TEntity> builder)
+    {
+        ConfigureTable(builder);
+        ConfigureSeed(builder);
 
         ConfigureKeys(builder);
+        ConfigureRelationships(builder);
+
         ConfigureColumns(builder);
         ConfigureIndexes(builder);
         ConfigureGlobalFilters(builder);
     }
 
+    protected virtual void ConfigureTable(EntityTypeBuilder<TEntity> builder)
+    {
+        builder.ToTable(TableName, TableSchema, ConfigureTable);
+    }
+
+    protected virtual void ConfigureTable(TableBuilder<TEntity> tableBuilder)
+    {
+    }
+
+    protected virtual void ConfigureSeed(EntityTypeBuilder<TEntity> builder)
+    {
+        builder.HasData(Seed);
+    }
+
     protected virtual void ConfigureKeys(EntityTypeBuilder<TEntity> builder)
     {
-        builder.HasKey(e => e.Id);
+    }
+
+    protected virtual void ConfigureRelationships(EntityTypeBuilder<TEntity> builder)
+    {
     }
 
     protected virtual void ConfigureColumns(EntityTypeBuilder<TEntity> builder)
@@ -32,37 +65,4 @@ public abstract class EntityConfiguration<TEntity, TId> : EntityConfiguration<TE
     protected virtual void ConfigureGlobalFilters(EntityTypeBuilder<TEntity> builder)
     {
     }
-}
-
-public abstract class EntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity>
-    where TEntity : class
-{
-    protected abstract string TableName { get; }
-
-    public virtual void Configure(EntityTypeBuilder<TEntity> builder)
-    {
-        ConfigureTable(builder);
-        ConfigureRelationships(builder);
-        ConfigureSeed(builder);
-    }
-
-    protected virtual void ConfigureTable(EntityTypeBuilder<TEntity> builder)
-    {
-        builder.ToTable(TableName, ConfigureTable);
-    }
-
-    protected virtual void ConfigureTable(TableBuilder<TEntity> tableBuilder)
-    {
-    }
-
-    protected virtual void ConfigureRelationships(EntityTypeBuilder<TEntity> builder)
-    {
-    }
-
-    protected virtual void ConfigureSeed(EntityTypeBuilder<TEntity> builder)
-    {
-        builder.HasData(Seed);
-    }
-
-    protected virtual IEnumerable<TEntity> Seed => [];
 }

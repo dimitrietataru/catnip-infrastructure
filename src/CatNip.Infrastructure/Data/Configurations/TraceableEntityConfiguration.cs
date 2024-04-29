@@ -17,19 +17,19 @@ public abstract class TraceableEntityConfiguration<TEntity, TEntityId, TTraceId>
     {
         base.Configure(builder);
 
-        ConfigureTraceableTable(builder);
-    }
-
-    protected virtual void ConfigureTraceableTable(EntityTypeBuilder<TEntity> builder)
-    {
-        builder
-            .Property(e => e.IsDeleted)
-            .IsRequired()
-            .HasDefaultValue(false);
+        ConfigureTraceableEntity(builder);
     }
 
     protected override void ConfigureGlobalFilters(EntityTypeBuilder<TEntity> builder)
     {
         builder.HasQueryFilter(e => e.IsDeleted == false);
+    }
+
+    protected virtual void ConfigureTraceableEntity(EntityTypeBuilder<TEntity> builder)
+    {
+        builder
+            .Property(e => e.IsDeleted)
+            .IsRequired()
+            .HasDefaultValue(false);
     }
 }
