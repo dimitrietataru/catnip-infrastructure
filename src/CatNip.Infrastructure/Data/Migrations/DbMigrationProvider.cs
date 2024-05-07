@@ -1,6 +1,6 @@
 namespace CatNip.Infrastructure.Data.Migrations;
 
-public abstract class DbMigrationProvider<TDbContext> : IDbMigrationProvider<TDbContext>
+public abstract class DbMigrationProvider<TDbContext> : IDbMigrationProvider
     where TDbContext : DbContext
 {
     protected DbMigrationProvider(TDbContext dbContext)
