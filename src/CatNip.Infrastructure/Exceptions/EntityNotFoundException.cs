@@ -22,17 +22,17 @@ public class EntityNotFoundException<TEntity, TKey> : DataNotFoundException
     }
 
     public EntityNotFoundException(TKey id)
-        : base($"Entity {typeof(TEntity).Name} {{ id: {id}}} not found.")
+        : base($"Entity {typeof(TEntity).Name} {{ id: {id} }} not found.")
     {
     }
 
     public EntityNotFoundException(TKey id, string message)
-        : base($"Entity {typeof(TEntity).Name} {{ id: {id}}} not found. {message}")
+        : base($"Entity {typeof(TEntity).Name} {{ id: {id} }} not found. {message}")
     {
     }
 
     public EntityNotFoundException(TKey id, string message, Exception innerException)
-        : base($"Entity {typeof(TEntity).Name} {{ id: {id}}} not found. {message}", innerException)
+        : base($"Entity {typeof(TEntity).Name} {{ id: {id} }} not found. {message}", innerException)
     {
     }
 }
