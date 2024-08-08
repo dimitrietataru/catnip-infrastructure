@@ -40,6 +40,25 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return new QueryResponse<TModel>(request.Page, request.Size, count, items);
     }
 
+    public virtual async Task<QueryResponse<TModelRoot>> GetAsync<TModelRoot>(
+        QueryRequest<TFiltering> request, CancellationToken cancellation = default)
+        where TModelRoot : IModel<TId>
+    {
+        var baseQuery = GetQueriable();
+
+        var filteringQuery = BuildFilteringQuery(baseQuery, request.Filter);
+        int count = await filteringQuery.AsNoTracking().CountAsync(cancellation);
+
+        var sortQuery = BuildSortingQuery(filteringQuery, request);
+        var paginationQuery = BuildPaginationQuery(sortQuery, request);
+        var items = await paginationQuery
+            .AsNoTracking()
+            .ProjectTo<TModelRoot>(Mapper.ConfigurationProvider)
+            .ToListAsync(cancellation);
+
+        return new QueryResponse<TModelRoot>(request.Page, request.Size, count, items);
+    }
+
     public virtual async Task<int> CountAsync(
         TFiltering filter, CancellationToken cancellation = default)
     {

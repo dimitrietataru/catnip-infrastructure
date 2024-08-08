@@ -32,6 +32,20 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel, TId>
         return result;
     }
 
+    public virtual async Task<IEnumerable<TModelRoot>> GetAllAsync<TModelRoot>(CancellationToken cancellation = default)
+        where TModelRoot : IModel
+    {
+        var baseQuery = GetQueriable();
+        var sortQuery = BuildDefaultSortingQuery(baseQuery);
+
+        var result = await sortQuery
+            .AsNoTracking()
+            .ProjectTo<TModelRoot>(Mapper.ConfigurationProvider)
+            .ToListAsync(cancellation);
+
+        return result;
+    }
+
     public virtual async Task<int> CountAsync(CancellationToken cancellation = default)
     {
         var baseQuery = GetQueriable();
@@ -128,6 +142,20 @@ public abstract class CrudRepository<TDbContext, TEntity, TModel>
         var result = await sortQuery
             .AsNoTracking()
             .ProjectTo<TModel>(mapper.ConfigurationProvider)
+            .ToListAsync(cancellation);
+
+        return result;
+    }
+
+    public virtual async Task<IEnumerable<TModelRoot>> GetAllAsync<TModelRoot>(CancellationToken cancellation = default)
+        where TModelRoot : IModel
+    {
+        var baseQuery = GetQueriable();
+        var sortQuery = BuildDefaultSortingQuery(baseQuery);
+
+        var result = await sortQuery
+            .AsNoTracking()
+            .ProjectTo<TModelRoot>(mapper.ConfigurationProvider)
             .ToListAsync(cancellation);
 
         return result;
