@@ -9,7 +9,7 @@
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>CatNip.Infrastructure</PackageId>
-    <Version>3.0.0</Version>
+    <Version>3.0.1</Version>
     <Authors>Dimitrie Tataru</Authors>
     <Company>A C E</Company>
     <Description>Clean Architecture Template - Infrastructure Abstractions</Description>
