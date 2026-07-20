@@ -1,9 +1,12 @@
 global using AutoMapper;
 global using AutoMapper.QueryableExtensions;
+global using CsvHelper;
+global using CsvHelper.Configuration;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using System;
 global using System.Collections.Generic;
+global using System.IO;
 global using System.Linq;
 global using System.Threading;
 global using System.Threading.Tasks;

@@ -1,3 +1,5 @@
+using CatNip.Domain.ImportExport;
+using CatNip.Domain.ImportExport.Csv;
 using CatNip.Domain.Models.Interfaces;
 using CatNip.Domain.Query;
 using CatNip.Domain.Query.Filtering;
@@ -9,13 +11,14 @@ using CatNip.Infrastructure.Data.Entities.Interfaces;
 
 namespace CatNip.Infrastructure.Repositories;
 
-public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering> :
-    CrudRepository<TDbContext, TEntity, TModel, TId>, IAceRepository<TModel, TId, TFiltering>
+public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering, TExchange> :
+    CrudRepository<TDbContext, TEntity, TModel, TId>, IAceRepository<TModel, TId, TFiltering, TExchange>
     where TDbContext : DbContext
     where TEntity : class, IEntity<TId>
     where TModel : IModel<TId>
     where TId : IEquatable<TId>
     where TFiltering : IFilteringRequest
+    where TExchange : ICsvMappable
 {
     protected AceRepository(TDbContext dbContext, IMapper mapper)
         : base(dbContext, mapper)
@@ -80,6 +83,9 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
 
         return exists;
     }
+
+    public abstract Task<ImportResponse> ImportAsync(
+        ICollection<TExchange> records, CancellationToken cancellation);
 
     protected virtual IQueryable<TEntity> BuildPaginationQuery(
         IQueryable<TEntity> query, IPaginationRequest paginationRequest)
