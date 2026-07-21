@@ -1,3 +1,4 @@
+using CatNip.Domain.Exceptions;
 using CatNip.Domain.ImportExport.Csv;
 
 namespace CatNip.Infrastructure.ImportExport;
@@ -15,13 +16,11 @@ public abstract class AceCsvConverter : ICsvConverter
 
         if (!Mappings.TryGetValue(typeof(T), out var classMap))
         {
-            throw new Exception($"No CSV mapping configuration registered for {typeof(T).Name}");
+            throw new CsvMappingNotFoundException(typeof(T));
         }
 
         csv.Context.RegisterClassMap(classMap);
-#pragma warning disable CA1849 // Call async methods when in an async method
         var records = csv.GetRecords<T>().ToList();
-#pragma warning restore CA1849 // Call async methods when in an async method
 
         return records;
     }

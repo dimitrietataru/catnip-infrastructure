@@ -850,3 +850,6 @@ dotnet_diagnostic.CA2265.severity = warning
 ## CA1005: Avoid excessive parameters on generic types
 [*.{cs,vb}]
 dotnet_diagnostic.CA1005.severity = none
+## CA1849: Call async methods when in an async method
+[**[Cc]sv[Cc]onverter.cs]
+dotnet_diagnostic.CA1849.severity = none
