@@ -1,5 +1,6 @@
 global using AutoMapper;
 global using AutoMapper.QueryableExtensions;
+global using ClosedXML.Excel;
 global using CsvHelper;
 global using CsvHelper.Configuration;
 global using Microsoft.EntityFrameworkCore;
