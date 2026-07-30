@@ -1,5 +1,6 @@
 using CatNip.Domain.ImportExport;
 using CatNip.Domain.ImportExport.Csv;
+using CatNip.Domain.ImportExport.Excel;
 using CatNip.Domain.Models.Interfaces;
 using CatNip.Domain.Query;
 using CatNip.Domain.Query.Filtering;
@@ -18,7 +19,7 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
     where TModel : IModel<TId>
     where TId : IEquatable<TId>
     where TFiltering : IFilteringRequest
-    where TExchange : ICsvMappable
+    where TExchange : ICsvMappable, IExcelMappable
 {
     protected AceRepository(TDbContext dbContext, IMapper mapper)
         : base(dbContext, mapper)
