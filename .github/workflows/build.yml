@@ -34,7 +34,9 @@ jobs:
       with:
         dotnet-version: 10.0.x
         cache: true
-        cache-dependency-path: '**/*.csproj'
+        cache-dependency-path: |
+          **/*.csproj
+          **/Directory.Build.props
 
     - name: dotnet restore
       run: dotnet restore $SOLUTION
