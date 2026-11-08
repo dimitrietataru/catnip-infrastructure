@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Configure GIT
+      run: git config --global core.autocrlf true
+
     - name: Checkout
       uses: actions/checkout@v6
     
@@ -40,8 +43,11 @@ jobs:
     - name: dotnet restore
       run: dotnet restore $SOLUTION
 
+    - name: dotnet format
+      run: dotnet format $SOLUTION --verify-no-changes --severity info --no-restore
+
     - name: dotnet build
-      run: dotnet build $SOLUTION --configuration $CONFIG -p:Version=$BUILD_VERSION --no-restore
+      run: dotnet build $SOLUTION --configuration $CONFIG -p:Version=$BUILD_VERSION --no-restore -warnaserror
 
     - name: dotnet nuget push
       if: startsWith(github.ref, 'refs/heads/release')
