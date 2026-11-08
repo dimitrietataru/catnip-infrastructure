@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{B7D3E1A4-5F28-4C9B-8E61-2A4D9F07C35E}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatNip.Infrastructure", "CatNip.Infrastructure\CatNip.Infrastructure.csproj", "{9A433C8D-2FE0-492B-83D0-5EB6A1953C26}"
 EndProject
 Global
