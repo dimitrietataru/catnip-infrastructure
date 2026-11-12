@@ -2,33 +2,7 @@ using CatNip.Infrastructure.Data.Entities.Interfaces;
 
 namespace CatNip.Infrastructure.Data.Entities;
 
-public abstract class Entity<TId> : Entity, IEntity<TId>
-    where TId : IEquatable<TId>
-{
-    public virtual TId Id { get; set; } = default!;
-
-    public override bool Equals(Entity? other)
-    {
-        if (other is not Entity<TId> entity)
-        {
-            return false;
-        }
-
-        if (Id.Equals(default) || entity.Id.Equals(default))
-        {
-            return false;
-        }
-
-        return Id.Equals(entity.Id);
-    }
-
-    protected override int DetermineHashCode()
-    {
-        return HashCode.Combine(Id);
-    }
-}
-
-public abstract class Entity : IEquatable<Entity>
+public abstract class Entity : IEquatable<Entity>, IEntity
 {
     public override bool Equals(object? obj)
     {

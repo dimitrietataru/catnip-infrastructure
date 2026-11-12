@@ -12,7 +12,7 @@ public sealed class EventPublisher : IEventPublisher
         this.publishEndpoint = publishEndpoint;
     }
 
-    public async Task PublishAsync<TMessage>(TMessage message, CancellationToken cancellation)
+    public async Task PublishAsync<TMessage>(TMessage message, CancellationToken cancellation = default)
         where TMessage : class, IEvent
     {
         await publishEndpoint.Publish(message, cancellation);

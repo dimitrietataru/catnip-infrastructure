@@ -2,22 +2,22 @@ using CatNip.Infrastructure.Data.Entities.Interfaces;
 
 namespace CatNip.Infrastructure.Data.Configurations;
 
-public abstract class TraceableEntityConfiguration<TEntity, TId> : TraceableEntityConfiguration<TEntity, TId, TId>
-    where TEntity : class, ITraceableEntity<TId>
+public abstract class AceEntityConfiguration<TEntity, TId> : AceEntityConfiguration<TEntity, TId, TId>
+    where TEntity : class, IAceEntity<TId>
     where TId : IEquatable<TId>
 {
 }
 
-public abstract class TraceableEntityConfiguration<TEntity, TEntityId, TTraceId> : EntityConfiguration<TEntity, TEntityId>
-    where TEntity : class, ITraceableEntity<TEntityId, TTraceId>
-    where TEntityId : IEquatable<TEntityId>
+public abstract class AceEntityConfiguration<TEntity, TId, TTraceId> : CrudEntityConfiguration<TEntity, TId>
+    where TEntity : class, IAceEntity<TId, TTraceId>
+    where TId : IEquatable<TId>
     where TTraceId : IEquatable<TTraceId>
 {
     public override void Configure(EntityTypeBuilder<TEntity> builder)
     {
         base.Configure(builder);
 
-        ConfigureTraceableEntity(builder);
+        ConfigureTraceEntity(builder);
     }
 
     protected override void ConfigureGlobalFilters(EntityTypeBuilder<TEntity> builder)
@@ -25,7 +25,7 @@ public abstract class TraceableEntityConfiguration<TEntity, TEntityId, TTraceId>
         builder.HasQueryFilter(e => e.IsDeleted == false);
     }
 
-    protected virtual void ConfigureTraceableEntity(EntityTypeBuilder<TEntity> builder)
+    protected virtual void ConfigureTraceEntity(EntityTypeBuilder<TEntity> builder)
     {
         builder
             .Property(e => e.IsDeleted)

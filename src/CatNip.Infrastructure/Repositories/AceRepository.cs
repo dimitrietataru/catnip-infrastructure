@@ -12,12 +12,30 @@ using CatNip.Infrastructure.Data.Entities.Interfaces;
 
 namespace CatNip.Infrastructure.Repositories;
 
-public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering, TExchange> :
-    CrudRepository<TDbContext, TEntity, TModel, TId>, IAceRepository<TModel, TId, TFiltering, TExchange>
+public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TModelRoot, TFiltering, TExchange>
+    : AceRepository<TDbContext, TEntity, TModel, TId, TId, TModelRoot, TFiltering, TExchange>, IAceRepository<TModel, TId, TModelRoot, TFiltering, TExchange>
     where TDbContext : DbContext
-    where TEntity : class, IEntity<TId>
-    where TModel : IModel<TId>
+    where TEntity : class, IAceEntity<TId>
+    where TModel : IAceModel<TId>
     where TId : IEquatable<TId>
+    where TModelRoot : ICrudModel<TId>
+    where TFiltering : IFilteringRequest
+    where TExchange : ICsvMappable, IExcelMappable
+{
+    protected AceRepository(TDbContext dbContext, IMapper mapper)
+        : base(dbContext, mapper)
+    {
+    }
+}
+
+public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TTraceId, TModelRoot, TFiltering, TExchange>
+    : CrudRepository<TDbContext, TEntity, TModel, TId>, IAceRepository<TModel, TId, TTraceId, TModelRoot, TFiltering, TExchange>
+    where TDbContext : DbContext
+    where TEntity : class, IAceEntity<TId, TTraceId>
+    where TModel : IAceModel<TId, TTraceId>
+    where TId : IEquatable<TId>
+    where TTraceId : IEquatable<TTraceId>
+    where TModelRoot : ICrudModel<TId>
     where TFiltering : IFilteringRequest
     where TExchange : ICsvMappable, IExcelMappable
 {
@@ -26,29 +44,9 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
     {
     }
 
-    public virtual async Task<QueryResponse<TModel>> GetAsync(
-        QueryRequest<TFiltering> request, CancellationToken cancellation = default)
+    public virtual async Task<QueryResponse<TModelRoot>> GetAsync(QueryRequest<TFiltering> request, CancellationToken cancellation = default)
     {
-        var baseQuery = GetQueriable();
-
-        var filteringQuery = BuildFilteringQuery(baseQuery, request.Filter);
-        int count = await filteringQuery.AsNoTracking().CountAsync(cancellation);
-
-        var sortQuery = BuildSortingQuery(filteringQuery, request);
-        var paginationQuery = BuildPaginationQuery(sortQuery, request);
-        var items = await paginationQuery
-            .AsNoTracking()
-            .ProjectTo<TModel>(Mapper.ConfigurationProvider)
-            .ToListAsync(cancellation);
-
-        return new QueryResponse<TModel>(request.Page, request.Size, count, items);
-    }
-
-    public virtual async Task<QueryResponse<TModelRoot>> GetAsync<TModelRoot>(
-        QueryRequest<TFiltering> request, CancellationToken cancellation = default)
-        where TModelRoot : IModel<TId>
-    {
-        var baseQuery = GetQueriable();
+        var baseQuery = GetQueryable();
 
         var filteringQuery = BuildFilteringQuery(baseQuery, request.Filter);
         int count = await filteringQuery.AsNoTracking().CountAsync(cancellation);
@@ -63,33 +61,27 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return new QueryResponse<TModelRoot>(request.Page, request.Size, count, items);
     }
 
-    public virtual async Task<int> CountAsync(
-        TFiltering filter, CancellationToken cancellation = default)
+    public virtual async Task<int> CountAsync(TFiltering filter, CancellationToken cancellation = default)
     {
-        var baseQuery = GetQueriable();
+        var baseQuery = GetQueryable();
         var filteringQuery = BuildFilteringQuery(baseQuery, filter);
 
-        int count = await filteringQuery.AsNoTracking().CountAsync(cancellation);
-
-        return count;
+        return await filteringQuery.AsNoTracking().CountAsync(cancellation);
     }
 
-    public virtual async Task<bool> ExistsAsync(
-        TFiltering filter, CancellationToken cancellation = default)
+    public virtual async Task<bool> ExistsAsync(TFiltering filter, CancellationToken cancellation = default)
     {
-        var baseQuery = GetQueriable();
+        var baseQuery = GetQueryable();
         var filteringQuery = BuildFilteringQuery(baseQuery, filter);
 
-        bool exists = await filteringQuery.AsNoTracking().AnyAsync(cancellation);
-
-        return exists;
+        return await filteringQuery.AsNoTracking().AnyAsync(cancellation);
     }
 
-    public abstract Task<ImportResponse> ImportAsync(
-        ICollection<TExchange> records, CancellationToken cancellation);
+    public abstract Task<ImportResponse> ImportAsync(ICollection<TExchange> records, CancellationToken cancellation = default);
 
-    protected virtual IQueryable<TEntity> BuildPaginationQuery(
-        IQueryable<TEntity> query, IPaginationRequest paginationRequest)
+    protected abstract IQueryable<TEntity> BuildFilteringQuery(IQueryable<TEntity> query, TFiltering filter);
+
+    protected virtual IQueryable<TEntity> BuildPaginationQuery(IQueryable<TEntity> query, IPaginationRequest paginationRequest)
     {
         if (!paginationRequest.HasPaginationData())
         {
@@ -102,8 +94,7 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
         return query.Skip((page - 1) * size).Take(size);
     }
 
-    protected virtual IQueryable<TEntity> BuildSortingQuery(
-        IQueryable<TEntity> query, ISortingRequest sortingRequest)
+    protected virtual IQueryable<TEntity> BuildSortingQuery(IQueryable<TEntity> query, ISortingRequest sortingRequest)
     {
         if (!sortingRequest.HasSortingData())
         {
@@ -115,14 +106,11 @@ public abstract class AceRepository<TDbContext, TEntity, TModel, TId, TFiltering
 
         query = (sortBy, sortDirection) switch
         {
-            ("id", SortDirection.Ascending) => query.OrderBy(_ => _.Id),
-            ("id", SortDirection.Descending) => query.OrderByDescending(_ => _.Id),
+            ("id", SortDirection.Ascending) => query.OrderBy(e => e.Id),
+            ("id", SortDirection.Descending) => query.OrderByDescending(e => e.Id),
             _ => BuildDefaultSortingQuery(query)
         };
 
         return query;
     }
-
-    protected abstract IQueryable<TEntity> BuildFilteringQuery(
-        IQueryable<TEntity> query, TFiltering request);
 }

@@ -2,18 +2,8 @@ using CatNip.Infrastructure.Data.Entities.Interfaces;
 
 namespace CatNip.Infrastructure.Data.Configurations;
 
-public abstract class EntityConfiguration<TEntity, TId> : EntityConfiguration<TEntity>
-    where TEntity : class, IEntity<TId>
-    where TId : IEquatable<TId>
-{
-    protected override void ConfigureKeys(EntityTypeBuilder<TEntity> builder)
-    {
-        builder.HasKey(e => e.Id);
-    }
-}
-
 public abstract class EntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity>
-    where TEntity : class
+    where TEntity : class, IEntity
 {
     protected abstract string TableName { get; }
     protected abstract string? TableSchema { get; }
